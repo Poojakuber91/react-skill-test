@@ -24,8 +24,9 @@ function Counter() {
   return (
     <Container>
       <h2>Counter</h2>
-      <Button onClick={() => setCount(count - 1)}>-</Button>
-      <Button onClick={() => setCount(count + 1)}>+</Button>
+      <Button onClick={() => setCount(count + 1)}>Increment</Button>
+      <Button onClick={() => setCount(count - 1)}>Decrement</Button>
+      <Button onClick={() => setCount(0)}>Reset</Button>
       <Count>Count: {count}</Count>
     </Container>
   );
