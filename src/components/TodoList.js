@@ -1,36 +1,63 @@
 import React, { useState, useReducer } from 'react';
 import styled from 'styled-components';
 
+// Styled Components
 const Container = styled.div`
-  margin: 20px;
+  margin: 20px auto;
   padding: 20px;
   border: 1px solid #ccc;
+  max-width: 600px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+
+  @media (max-width: 600px) {
+    padding: 15px;
+    width: 90%;
+  }
+`;
+
+const Heading = styled.h2`
+  text-align: center;
 `;
 
 const Input = styled.input`
-  margin: 5px;
-  padding: 8px;
-  width: 250px;
+  padding: 10px;
+  margin: 5px 0;
+  width: calc(100% - 20px);
+  font-size: 16px;
 `;
 
 const Button = styled.button`
-  padding: 8px 12px;
-  margin-left: 5px;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 16px;
+  margin: 5px 5px 10px 0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0056b3;
+  }
 `;
 
 const Task = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 8px;
-  background-color: ${props => props.completed ? '#d3ffd3' : '#f0f0f0'};
+  align-items: center;
+  background-color: ${props => (props.completed ? '#d3ffd3' : '#f0f0f0')};
+  padding: 10px;
   margin: 5px 0;
+  border-radius: 5px;
+  cursor: pointer;
 `;
 
 const initialState = [];
 
 function reducer(state, action) {
-  switch(action.type) {
+  switch (action.type) {
     case 'add':
+      if (!action.text.trim()) return state;
       return [...state, { id: Date.now(), text: action.text, completed: false }];
     case 'toggle':
       return state.map(task =>
@@ -44,24 +71,48 @@ function reducer(state, action) {
 }
 
 function TodoList() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [tasks, dispatch] = useReducer(reducer, initialState);
   const [text, setText] = useState('');
   const [filter, setFilter] = useState('');
 
-  const filteredTasks = state.filter(task => task.text.toLowerCase().includes(filter.toLowerCase()));
+  const filteredTasks = tasks.filter(task =>
+    task.text.toLowerCase().includes(filter.toLowerCase())
+  );
 
   return (
     <Container>
-      <h2>Todo List</h2>
-      <Input placeholder="Add task" value={text} onChange={e => setText(e.target.value)} />
-      <Button onClick={() => { dispatch({ type: 'add', text }); setText(''); }}>Add</Button>
-      <Input placeholder="Search" value={filter} onChange={e => setFilter(e.target.value)} />
+      <Heading>Todo List</Heading>
+      <Input
+        type="text"
+        placeholder="Add a new task"
+        value={text}
+        onChange={e => setText(e.target.value)}
+      />
+      <Button onClick={() => {
+        dispatch({ type: 'add', text });
+        setText('');
+      }}>
+        Add Task
+      </Button>
+      <Input
+        type="text"
+        placeholder="Search tasks"
+        value={filter}
+        onChange={e => setFilter(e.target.value)}
+      />
       {filteredTasks.map(task => (
-        <Task key={task.id} completed={task.completed}>
-          <span onClick={() => dispatch({ type: 'toggle', id: task.id })}>
-            {task.text}
-          </span>
-          <Button onClick={() => dispatch({ type: 'remove', id: task.id })}>Remove</Button>
+        <Task
+          key={task.id}
+          completed={task.completed}
+          onClick={() => dispatch({ type: 'toggle', id: task.id })}
+        >
+          <span>{task.text}</span>
+          <Button onClick={e => {
+            e.stopPropagation();
+            dispatch({ type: 'remove', id: task.id });
+          }}>
+            Remove
+          </Button>
         </Task>
       ))}
     </Container>
